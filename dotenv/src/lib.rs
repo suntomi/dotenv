@@ -15,6 +15,7 @@ use std::ffi::OsStr;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::sync::Once;
+use std::io::Read;
 
 pub use crate::errors::*;
 use crate::find::Finder;
@@ -148,6 +149,23 @@ pub fn from_filename<P: AsRef<Path>>(filename: P) -> Result<PathBuf> {
 pub fn from_filename_iter<P: AsRef<Path>>(filename: P) -> Result<Iter<File>> {
     let (_, iter) = Finder::new().filename(filename.as_ref()).find()?;
     Ok(iter)
+}
+
+/// set environment variable from any source which implements std::io::Read trait.
+///
+/// # Examples
+/// ```
+/// use dotenv;
+/// let env_file_on_mem = r#"SECRET1=foo
+/// SECRET2=bar
+/// "#;
+/// // [u8] (as_bytes()) implements std::io::Read bound
+/// dotenv::from_readable(env_file_on_mem.as_bytes()).ok();
+/// ```
+pub fn from_readable<R: Read>(r: R) -> Result<()> {
+    let iter = Iter::new(r);
+    iter.load()?;
+    Ok(())
 }
 
 /// This is usually what you want.
