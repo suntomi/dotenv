@@ -155,6 +155,13 @@ fn parse_value(
             match c {
                 '\\' | '\'' | '"' | '$' | ' ' => output.push(c),
                 'n' => output.push('\n'), // handle \n case
+                't' => output.push('\t'), // handle other escape sequence cases
+                '0' => output.push('\0'),
+                'a' => output.push('\x07'),
+                'b' => output.push('\x08'),
+                'v' => output.push('\x0b'),
+                'f' => output.push('\x0c'),
+                'r' => output.push('\r'),    
                 _ => {
                     return Err(Error::LineParse(input.to_owned(), index));
                 }
